@@ -43,16 +43,15 @@ Looking at the diamond examples above, we can find interesting properties about 
 
 Given _N_ the position of the (argument) letter in the alphabet,
 
-__The upper left corner of the pattern is filled with a diagonal formed by the letters A,B,C etc. The letter A is in position _N_ (starting from 1), B in position _N-1_, C, in position _N-2_, and so on.__
+> __The upper left corner of the pattern is filled with a diagonal formed by the letters A,B,C etc. The letter A is in position _N_ (starting from 1), B in position _N-1_, C, in position _N-2_, and so on.__
 
- __The pattern has horizontal symmetry, which means that flipping it horizontally yields the initial pattern.__
+> __The pattern has horizontal symmetry, which means that flipping it horizontally yields the initial pattern.__
 
+> __The pattern also has vertical symmetry.__
 
- __The pattern also has vertical symmetry.__
+> __The height of the diamond is _2N-1_.__
 
- __The height of the diamond is _2N-1_.__
-
- __The maximum width of the diamond equals its height, also _2N-1_.__ 
+> __The maximum width of the diamond equals its height, also _2N-1_.__ 
 
 I want to write a program that satisfies these properties, starting with the one that is the easiest, and then adding new properties one after the other.
 
@@ -62,9 +61,9 @@ What is the simplest assertion we could hold true about a function _diamond_ whi
 
 Well, we could try this:
 
-__For any given letter, the pattern has a length of _2 * N - 1_, where N is the position of the letter in the alphabet.__
+> __For any given letter, the pattern has a length of _2 * N - 1_, where N is the position of the letter in the alphabet.__
 
-```haskell
+```hs
 -- Specs.hs
 import Test.QuickCheck
 import Diamond
@@ -79,7 +78,7 @@ prop_DiamondLengthEquals2NMinus1 l =
 ```
 
 We can force a test failure with this dummy implementation:
-```haskell
+```hs
 -- Diamond.hs
 module Diamond
 where
@@ -95,7 +94,7 @@ runhaskell Specs.hs ⏎
 ```
 To make it pass, we can _fake_ the property by creating a list of empty strings having the right length:
 
-```haskell
+```hs
 -- Diamond.hs
 module Diamond
 where
@@ -114,13 +113,13 @@ runhaskell Specs.hs ⏎
 This is because `length ['A'..'1']` = 0, and `replicate` used with a negative argument yields an empty list.
 The problem is that our test data set is too broad for the function under test, which is expected to work only with capital letters. To solve this, we will use a generator. The function
 
-```haskell
+```hs
 choose :: System.Random.Random a => (a, a) -> Gen a
 ```
 
 will let us generate a char within the legal range for our program, which is `'A'` to `'Z'`. Then we can combine this generator with the `forAll` function so that the property get tested only with data from our generator:
 
-```haskell
+```hs
 -- Specs.hs
 import Test.QuickCheck
 import Diamond
@@ -140,7 +139,7 @@ runhaskell Specs.hs ⏎
 ```
 Now that the test passes, we can refactor the test code for better clarity during execution:
 
-```haskell
+```hs
 -- Specs.hs
 import Test.QuickCheck
 import Diamond
@@ -171,14 +170,14 @@ Diamond length equals 2N-1: +++ OK, passed 100 tests.
 
 Now we can maybe add some more important properties. Given _L_, the supplied letter:
 
-| __The upper left corner of a the diamond should contain a diagonal formed by the letters A to _L_.__|
+> __The upper left corner of a the diamond should contain a diagonal formed by the letters A to _L_.__
 
 ### "Fake" diagonal
 The first property is a bit complicated to write, as it involves comparing each cell in the diagonal to the letters from A to _L_. 
 For example, if the supplied letter is D, then the cells at positions (i.e. at row and column) {(0,3),(1,2),(2,1),(3,0)} should be filled with letters A, B, C, D.
 
 
-```haskell
+```hs
 -- Specs.hs
 . . .
 main = do
@@ -205,7 +204,7 @@ We can "convince" our test that the property holds by filling the result with se
 - the first _N_ lines with be filled with strings of length _N_:  AAAA.., BBBB.., and so on, until _NNNN.._
 - the next _N - 1_ lines will be produced the same way, only removing one, so that our first property still holds
 
-```haskell
+```hs
 module Diamond
 where
 import Data.Char (ord)
@@ -216,7 +215,7 @@ diamond l = map (replicate n) (letters ++ (tail letters))
           letters = ['A'..l]
 ```
 Of course, trying this program gives curious results:
-```haskell
+```hs
 ghci Diamonds ⏎
 putStr $ unlines $ diamond 'D' ⏎
 AAAA
@@ -232,12 +231,12 @@ But we are getting closer to our final program.
 ### Spaces
 It is true that _there is_ a diagonal formed by the letters A,B,C in the shape above, only it's not really visible! We should now state something more about the output if we want it to conform to the visual result of a diamond:
 
-| __Every cell of the corner that is not part of the diagonal contains a space.__|
+> __Every cell of the corner that is not part of the diagonal contains a space.__
 
 In other words, given _N_ the position of the supplied letter in the alphabet, for any coordinate _{ROW,COL}_ within the corner, if _ROW_ ≠ _N-1-COL_ then the cell in that position should be a space.
 
 
-```haskell
+```hs
 -- Specs.hs
 . . .
 main = do
@@ -259,14 +258,14 @@ prop_DiamondContainsSpaces l =
 Now we have to implement this diagonal and stop using fakes.
 
 Fortunately we can use the `tails` function which produces all the initial segments of a list:
-```haskell
+```hs
 ghci ⏎
 import Data.List
 tails "***" ⏎
 ["***","**","*",""]
 ```
 This, combined with `reverse` and `zipWith`, can help us create the desired pattern:
-```haskell
+```hs
 let spacesAfter = reverse (tails "   ") ⏎
 zipWith (:) "ABCD" spacesAfter ⏎
 ["A","B ","C  ","D   "]
@@ -276,7 +275,7 @@ zipWith (++) spacesBefore $ zipWith (:) "ABCD" spacesAfter ⏎
 
 ```
 Let's put these discoveries into our `diamond` function:
-```haskell
+```hs
 -- Diamond.hs
 module Diamond
 where
@@ -297,7 +296,7 @@ diamond l = corner ++ tail corner
 And now all the test pass.
 Let's try our code:
 
-```haskell
+```hs
 ghci Diamonds ⏎
 putStr $ unlines $ diamond 'D'
    A
@@ -312,10 +311,10 @@ We are getting closer to the final result!
 ## 4: Horizontal symmetry
 Seeing this result helps us find the next property to test:
 
-| __The diamond has horizontal symmetry: flipping it should yield the same result__ |
+> __The diamond has horizontal symmetry: flipping it should yield the same result__
 
 
-```haskell
+```hs
 -- Specs.hs
 . . .
 main = do
@@ -336,7 +335,7 @@ prop_HorizontalSymmetry l =
         diamond l == reverse (diamond l)
 ```
 The functions `tail` and `reverse` are our allied here:
-```haskell
+```hs
 -- Diamond.hs
 module Diamond
 where
@@ -355,7 +354,7 @@ diamond l = corner ++ tail (reverse corner)
           letters = ['A'..l]
 ```
 A look at the result so far:
-```haskell
+```hs
 ghci Diamonds ⏎
 putStr $ unlines $ diamond 'D' ⏎
    A
@@ -370,9 +369,9 @@ D
 ## 5: Vertical symmetry
 We are almost done! Here's a new property:
 
-| __The diamond has vertical symmetry: flipping all of its lines should yield the same result__ |
+> __The diamond has vertical symmetry: flipping all of its lines should yield the same result__
 
-```haskell
+```hs
 -- Specs.hs
 . . .
 main = do
@@ -396,7 +395,7 @@ prop_VerticalSymmetry l =
         diamond l == map reverse (diamond l)
 ```
 To make this test pass, we need to _mirror_ each line of the corner containing the diagonal, i.e. to concatenate it with its reverse:
-```haskell
+```hs
 -- Diamond.hs
 module Diamond
 where
@@ -417,7 +416,7 @@ diamond l = half ++ tail (reverse half)
           letters = ['A'..l]
 ```
 We are getting close, but there is still a property that we should add, as is visible in this trial:
-```haskell
+```hs
 ghci Diamonds ⏎
 putStr $ unlines $ diamond 'D' ⏎
    AA
@@ -431,10 +430,10 @@ D      D
 ### 6: Diamond width
 Let's make sure that:
 
-| __The diamond's width equals _2N-1_ where _N_ is the position of the letter.__ |
+> __The diamond's width equals _2N-1_ where _N_ is the position of the letter.__
 
 
-```haskell
+```hs
 -- Specs.hs
 . . .
 main = do
@@ -462,7 +461,7 @@ prop_DiamondWidthEquals2NMinus1 l =
             n = length ['A'..l]
 ```
 Our _mirror_ function should remove the first char of its argument:
-```haskell
+```hs
 -- Diamond.hs
 module Diamond
 where
@@ -483,7 +482,7 @@ diamond l = half ++ tail (reverse half)
           letters = ['A'..l]
 ```
 And some refactoring can occur here, since both horizontal and vertical symmetry can be obtain by mirroring:
-```haskell
+```hs
 -- Diamond.hs
 module Diamond
 where
@@ -503,7 +502,7 @@ diamond l = mirror (map mirror corner)
           letters = ['A'..l]
 ```
 Et voilà! The diamond kata, built the TDD way with quickcheck.
-```haskell
+```hs
 ghci Diamonds ⏎
 putStr $ unlines $ diamond 'Z' ⏎
                          A
