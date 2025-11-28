@@ -1,0 +1,14 @@
+
+.roboto-condensed-400 {
+  font-family: "Roboto Condensed", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+$font-stack: "Roboto Condensed","Comic Sans Ms",Helvetica, sans-serif;
+$primary-color: #333;
+
+body {
+  font: 100% $font-stack;
+  color: $primary-color;
+}
