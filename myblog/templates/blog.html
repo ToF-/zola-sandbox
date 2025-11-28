@@ -3,18 +3,21 @@
 {% block content %}
 <p>blog template</p>
 <h1 class="title">
-  {{ section.title }}
-  ({{ section.description }})
+    {{ section.title }}
+    ({{ section.description }})
 </h1>
 <ul>
-  <!-- If you are using pagination, section.pages will be empty.
-       You need to use the paginator object -->  
-  {% for page in section.pages %}
-  <li><a href="{{ page.permalink | safe }}">{{ page.title }}
-          {{ page.date  | date(format="%d/%m/%Y") }}
-          {% if page.description %}
-         ({{ page.description }}) 
-          {% endif %}</a></li>
-  {% endfor %}
+    <!-- If you are using pagination, section.pages will be empty.
+        You need to use the paginator object -->  
+        {% for page in section.pages %}
+        <li>
+            <a href="{{ page.permalink | safe }}">{{ page.title }}
+                {{ page.date  | date(format="%d/%m/%Y") }}
+            </a>
+            {% if page.summary %}
+            {{ page.summary | safe }}
+            {% endif %}
+        </li>
+        {% endfor %}
 </ul>
 {% endblock content %}
