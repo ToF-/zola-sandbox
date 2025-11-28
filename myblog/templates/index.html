@@ -1,8 +1,10 @@
 {% extends "base.html" %}
-
 {% block content %}
 <h1 class="title">
-  This is my blog made with Zola.
+  MyBlog
 </h1>
+<p> hi from index.html !! </p>
 <p><a href="{{ get_url(path='@/blog/_index.md') }}">Posts</a>.</p>
+<p><a href="{{ get_url(path='@/blog/series/_index.md') }}">Series</a>.</p>
+<img src="/images/ToF.png" alt="ToF">
 {% endblock content %}

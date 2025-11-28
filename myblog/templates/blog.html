@@ -1,8 +1,10 @@
 {% extends "base.html" %}
 
 {% block content %}
+<p>blog template</p>
 <h1 class="title">
   {{ section.title }}
+  ({{ section.description }})
 </h1>
 <ul>
   <!-- If you are using pagination, section.pages will be empty.

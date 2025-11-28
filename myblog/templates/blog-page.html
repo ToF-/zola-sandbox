@@ -1,11 +1,12 @@
 {% extends "base.html" %}
 
 {% block content %}
+<p>blog-page template</p>
 <h1 class="title">
   {{ page.title }}
   ({{ page.date }})
 </h1>
-<p class="subtitle"><strong>{{ page.date }}</strong></p>
+<p class="subtitle"><strong>posted on {{ page.date }}</strong></p>
 {{ page.content | safe }}
 {% endblock content %}
 
