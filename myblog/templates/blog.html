@@ -6,18 +6,25 @@
     {{ section.title }}
     ({{ section.description }})
 </h1>
-<ul>
-    <!-- If you are using pagination, section.pages will be empty.
-        You need to use the paginator object -->  
-        {% for page in section.pages %}
-        <li>
-            <a href="{{ page.permalink | safe }}">{{ page.title }}
-                {{ page.date  | date(format="%d/%m/%Y") }}
-            </a>
-            {% if page.summary %}
-            {{ page.summary | safe }}
-            {% endif %}
-        </li>
-        {% endfor %}
-</ul>
+<div class="posts">
+    {% for page in paginator.pages %}
+        <article class="post">
+            <p>{{ page.title }}</p>
+            <div class="post__summary">
+                {{ page.summary | safe }}
+            </div>
+            <div class="read-more">
+                <a href="{{ page.permalink }}">Read more...</a>
+            </div>
+        </article>
+    {% endfor %}
+</div>
+<nav class="pagination">
+    {% if paginator.previous %}
+        <a class="previous" href="{{ paginator.previous }}">‹ Previous</a>
+    {% endif %}
+    {% if paginator.next %}
+        <a class="next" href="{{ paginator.next }}">Next ›</a>
+    {% endif %}
+</nav>
 {% endblock content %}
